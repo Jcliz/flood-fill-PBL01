@@ -5,7 +5,7 @@ public class Queue<T> {
 
     public Queue() {}
 
-    public boolean enqueue(T elemento) {
+    public void enqueue(T elemento) {
         Node<T> novoNode = new Node<>(elemento);
         if (isEmpty()) {
             first = novoNode;
@@ -14,13 +14,13 @@ public class Queue<T> {
         }
         last = novoNode;
         size++;
-        return true;
     }
 
-    public boolean dequeue() {
+    public T dequeue() {
         if (isEmpty()) {
-            return false;
+            throw new NullPointerException();
         }
+        var e = first.getElement();
         first = first.getNext();
         size--;
 
@@ -28,7 +28,7 @@ public class Queue<T> {
             last = null;
         }
 
-        return true;
+        return e;
     }
 
     public Node<T> front() {

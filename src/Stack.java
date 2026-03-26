@@ -4,21 +4,21 @@ public class Stack<T> {
 
     public Stack() {}
 
-    public boolean push(T elemento) {
+    public void push(T elemento) {
         Node<T> newNode = new Node<>(elemento);
         newNode.setNext(top);
         top = newNode;
         size++;
-        return true;
     }
 
-    public boolean pop() {
+    public T pop() {
         if (isEmpty()) {
-            return false;
+            throw new NullPointerException();
         }
+        var e = top.getElement();
         top = top.getNext();
         size--;
-        return true;
+        return e;
     }
 
     public Node<T> top() {
