@@ -1,31 +1,51 @@
 public class Queue<T> {
-    private Node first;
-    private Node top;
+    private Node<T> first;
+    private Node<T> last;
     private int size;
 
     public Queue() {}
 
     public boolean enqueue(T elemento) {
-        return false;
+        Node<T> novoNode = new Node<>(elemento);
+        if (isEmpty()) {
+            first = novoNode;
+        } else {
+            last.setNext(novoNode);
+        }
+        last = novoNode;
+        size++;
+        return true;
     }
 
     public boolean dequeue() {
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+        first = first.getNext();
+        size--;
+
+        if (isEmpty()) {
+            last = null;
+        }
+
+        return true;
     }
 
-    public Node front() {
+    public Node<T> front() {
         return first;
     }
 
     public boolean isEmpty() {
-        return false;
+        return first == null;
     }
 
     public int size() {
         return size;
     }
 
-    public boolean clear() {
-        return false;
+    public void clear() {
+        first = null;
+        last = null;
+        size = 0;
     }
 }
