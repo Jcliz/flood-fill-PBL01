@@ -15,7 +15,7 @@ public class Stack<T> {
         if (isEmpty()) {
             throw new NullPointerException();
         }
-        var e = top.getElement();
+        T e = top.getElement();
         top = top.getNext();
         size--;
         return e;

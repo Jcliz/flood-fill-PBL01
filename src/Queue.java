@@ -20,7 +20,7 @@ public class Queue<T> {
         if (isEmpty()) {
             throw new NullPointerException();
         }
-        var e = first.getElement();
+        T e = first.getElement();
         first = first.getNext();
         size--;
 
