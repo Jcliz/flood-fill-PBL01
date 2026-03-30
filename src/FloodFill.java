@@ -41,17 +41,17 @@ public class FloodFill {
             int y = atual[1];
 
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-                int corAtual = image.getRGB(x, y);
-                int rFundo = (corFundo >> 16) & 0xFF;
-                int gFundo = (corFundo >> 8) & 0xFF;
-                int bFundo = corFundo & 0xFF;
-                int rAtual = (corAtual >> 16) & 0xFF;
-                int gAtual = (corAtual >> 8) & 0xFF;
-                int bAtual = corAtual & 0xFF;
+            int corAtual = image.getRGB(x, y);
+            int rFundo = (corFundo >> 16) & 0xFF;
+            int gFundo = (corFundo >> 8) & 0xFF;
+            int bFundo = corFundo & 0xFF;
+            int rAtual = (corAtual >> 16) & 0xFF;
+            int gAtual = (corAtual >> 8) & 0xFF;
+            int bAtual = corAtual & 0xFF;
 
-                if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
-                    || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
-                    || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
+            if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
+                || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
+                || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
 
             image.setRGB(x, y, NEW_COLOR.getRGB());
             controleMagenta++;
@@ -91,17 +91,17 @@ public class FloodFill {
             int y = atual[1];
 
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-                int corAtual = image.getRGB(x, y);
-                int rFundo = (corFundo >> 16) & 0xFF;
-                int gFundo = (corFundo >> 8) & 0xFF;
-                int bFundo = corFundo & 0xFF;
-                int rAtual = (corAtual >> 16) & 0xFF;
-                int gAtual = (corAtual >> 8) & 0xFF;
-                int bAtual = corAtual & 0xFF;
+            int corAtual = image.getRGB(x, y);
+            int rFundo = (corFundo >> 16) & 0xFF;
+            int gFundo = (corFundo >> 8) & 0xFF;
+            int bFundo = corFundo & 0xFF;
+            int rAtual = (corAtual >> 16) & 0xFF;
+            int gAtual = (corAtual >> 8) & 0xFF;
+            int bAtual = corAtual & 0xFF;
 
-                if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
-                    || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
-                    || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
+            if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
+                || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
+                || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
 
             image.setRGB(x, y, NEW_COLOR.getRGB());
             controleMagenta++;
