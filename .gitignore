@@ -1,3 +1,6 @@
+### pasta de imagens ###
+/frames
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/

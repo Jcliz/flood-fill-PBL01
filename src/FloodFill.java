@@ -14,14 +14,16 @@ public class FloodFill {
     private final BufferedImage image;
     private final ArrayList<BufferedImage> frames;
 
-    private static final int FRAME_INTERVAL = 25; // Salva um frame a cada x pixels preenchidos
+    //salva um frame a cada x pixels preenchidos
+    private static final int FRAME_INTERVAL = 25;
 
     public FloodFill(String inputPath) throws IOException {
         this.image = ImageIO.read(new File(inputPath));
         this.frames = new ArrayList<>();
     }
 
-    public void fillComPilha(int startX, int startY) { // Implementação do algoritmo de preenchimento usando pilha 
+    //implementação do algoritmo de preenchimento usando pilha
+    public void fillComPilha(int startX, int startY) {
         int corFundo = image.getRGB(startX, startY);
 
         if (corFundo == NEW_COLOR.getRGB()) return;
@@ -44,7 +46,9 @@ public class FloodFill {
             controleMagenta++;
 
             if (controleMagenta % FRAME_INTERVAL == 0) {
-                frames.add(copiarImagem(image));
+                synchronized (frames) {
+                    frames.add(copiarImagem(image));
+                }
             }
 
             filaPrimariaExecucao.push(new int[]{x + 1, y});
@@ -53,10 +57,13 @@ public class FloodFill {
             filaPrimariaExecucao.push(new int[]{x, y - 1});
         }
 
-        frames.add(copiarImagem(image));
+        synchronized (frames) {
+            frames.add(copiarImagem(image));
+        }
     }
 
-    public void fillComFila(int startX, int startY) { // Implementação do algoritmo de preenchimento usando fila 
+    //implementação do algoritmo de preenchimento usando fila
+    public void fillComFila(int startX, int startY) {
         int corFundo = image.getRGB(startX, startY);
 
         if (corFundo == NEW_COLOR.getRGB()) return;
@@ -79,7 +86,9 @@ public class FloodFill {
             controleMagenta++;
 
             if (controleMagenta % FRAME_INTERVAL == 0) {
-                frames.add(copiarImagem(image));
+                synchronized (frames) {
+                    frames.add(copiarImagem(image));
+                }
             }
 
             filaPrimariaExecucao.enqueue(new int[]{x + 1, y});
@@ -88,10 +97,13 @@ public class FloodFill {
             filaPrimariaExecucao.enqueue(new int[]{x, y - 1});
         }
 
-        frames.add(copiarImagem(image));
+        synchronized (frames) {
+            frames.add(copiarImagem(image));
+        }
     }
 
-    public void salvarFrames(String pastaFrames) throws IOException { // Salva os frames gerados durante o preenchimento
+    //salva os frames gerados durante o preenchimento
+    public void salvarFrames(String pastaFrames) throws IOException {
         File pasta = new File(pastaFrames);
         if (!pasta.exists()) pasta.mkdirs();
 
@@ -110,13 +122,14 @@ public class FloodFill {
         return image;
     }
 
-    private BufferedImage copiarImagem(BufferedImage original) { // Método para criar uma cópia da imagem 
-        BufferedImage copia = new BufferedImage( // Cria uma nova imagem com as mesmas dimensões e tipo da original
+    //método para criar uma cópia da imagem
+    private BufferedImage copiarImagem(BufferedImage original) {
+        BufferedImage copia = new BufferedImage(
                 original.getWidth(),
                 original.getHeight(),
                 original.getType()
         );
-        for (int x = 0; x < original.getWidth(); x++) { // Copia pixel por pixel da imagem original para a nova imagem
+        for (int x = 0; x < original.getWidth(); x++) {
             for (int y = 0; y < original.getHeight(); y++) { 
                 copia.setRGB(x, y, original.getRGB(x, y)); 
             }

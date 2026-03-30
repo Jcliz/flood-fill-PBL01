@@ -11,13 +11,17 @@ public class PaintApp extends JPanel {
     private BufferedImage imagemOriginal;
     private boolean usarFila;
     private int contadorFloodFill = 0;
+    private volatile boolean preenchendo = false;
+    private volatile int versaoExecucao = 0;
 
     private static final int LARGURA = 600;
     private static final int ALTURA = 600;
     private static final int CELULAS = 10;
     private static final int TAMANHO_CELULA = LARGURA / CELULAS;
+    private static final String IMAGEM_BASE_PNG = "imagem-base.png";
 
-    public PaintApp(boolean usarFila) { // Construtor que recebe a escolha do usuário sobre qual estrutura de dados usar (fila ou pilha)
+    //construtor que recebe a escolha do usuário sobre qual estrutura de dados usar (fila ou pilha)
+    public PaintApp(boolean usarFila) {
         this.usarFila = usarFila;
         imagemOriginal = criarGrid();
         canvas = copiarImagem(imagemOriginal);
@@ -30,25 +34,32 @@ public class PaintApp extends JPanel {
         });
     }
 
-    private BufferedImage criarGrid() { // Cria a imagem de fundo com a grade
-        BufferedImage img = new BufferedImage(LARGURA, ALTURA, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = img.createGraphics();
+    //cria a imagem de fundo com formas geométricas
+    private BufferedImage criarGrid() {
+        try {
+            BufferedImage imagemPng = ImageIO.read(new File(IMAGEM_BASE_PNG));
 
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, LARGURA, ALTURA);
+            if (imagemPng == null) {
+                throw new IllegalArgumentException("Arquivo PNG inválido: " + IMAGEM_BASE_PNG);
+            }
 
-        g.setColor(Color.BLACK);
-        for (int i = 0; i <= CELULAS; i++) {
-            int pos = i * TAMANHO_CELULA;
-            g.drawLine(pos, 0, pos, ALTURA);
-            g.drawLine(0, pos, LARGURA, pos); 
+            if (imagemPng.getWidth() == LARGURA && imagemPng.getHeight() == ALTURA) {
+                return copiarImagem(imagemPng);
+            }
+
+            BufferedImage ajustada = new BufferedImage(LARGURA, ALTURA, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = ajustada.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(imagemPng, 0, 0, LARGURA, ALTURA, null);
+            g.dispose();
+            return ajustada;
+        } catch (Exception ex) {
+            throw new RuntimeException("Nao foi possivel carregar a imagem base PNG na raiz: " + IMAGEM_BASE_PNG, ex);
         }
-
-        g.dispose();
-        return img;
     }
 
-    private BufferedImage copiarImagem(BufferedImage original) { // Cria uma cópia da imagem original para ser usada como canvas de desenho
+    //cria uma cópia da imagem original para ser usada como canvas de desenho
+    private BufferedImage copiarImagem(BufferedImage original) {
         BufferedImage copia = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = copia.createGraphics();
         g.drawImage(original, 0, 0, null);
@@ -56,57 +67,99 @@ public class PaintApp extends JPanel {
         return copia;
     }
 
-    private void executarFloodFill(int x, int y) { // Método que executa o algoritmo de preenchimento quando o usuário clica em uma célula
-        contadorFloodFill++;
-        String pastaFrames = "frames/fill_" + contadorFloodFill;
+    //método que executa o algoritmo de preenchimento quando o usuário clica em uma célula
+    private void executarFloodFill(int x, int y) {
+        if (preenchendo) return;
+        preenchendo = true;
+        int versaoAtual = ++versaoExecucao;
+        String pastaFrames = "frames/fill_" + (++contadorFloodFill);
 
         try {
             File temp = File.createTempFile("canvas_", ".png");
             ImageIO.write(canvas, "png", temp);
-
             FloodFill ff = new FloodFill(temp.getAbsolutePath());
 
-            if (usarFila) {
-                ff.fillComFila(x, y);
-            } else {
-                ff.fillComPilha(x, y);
-            }
+            Thread threadFloodFill = new Thread(() -> {
+                try {
+                    if (usarFila) ff.fillComFila(x, y);
+                    else ff.fillComPilha(x, y);
+                    ff.salvarFrames(pastaFrames);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    temp.delete();
+                }
+            });
 
-            ff.salvarFrames(pastaFrames);
+            Thread threadRender = new Thread(() -> {
+                ArrayList<BufferedImage> frames = ff.getFrames();
+                int indiceAtual = 0;
 
-            BufferedImage resultado = ff.getImagem();
-            Graphics2D g = canvas.createGraphics();
-            g.drawImage(resultado, 0, 0, null);
-            g.dispose();
+                while (threadFloodFill.isAlive() || indiceAtual < frames.size()) {
+                    BufferedImage frame = null;
+                    synchronized (frames) {
+                        if (indiceAtual < frames.size()) frame = frames.get(indiceAtual++);
+                    }
 
-            temp.delete();
-            repaint();
+                    if (frame != null) {
+                        desenharNoCanvas(frame, versaoAtual);
+                    } else {
+                        try { Thread.sleep(5); }
+                        catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+                    }
+                }
 
-            System.out.println("Fill #" + contadorFloodFill + " concluído. Frames salvos em: " + pastaFrames);
+                BufferedImage resultado = ff.getImagem();
+                SwingUtilities.invokeLater(() -> {
+                    if (versaoAtual != versaoExecucao) return;
+                    desenharNoCanvas(resultado, versaoAtual);
+                    preenchendo = false;
+                    System.out.println("Fill #" + contadorFloodFill + " concluído. Frames salvos em: " + pastaFrames);
+                });
+            });
+
+            threadFloodFill.start();
+            threadRender.start();
 
         } catch (Exception ex) {
+            if (versaoAtual == versaoExecucao) preenchendo = false;
             ex.printStackTrace();
         }
     }
 
+    private void desenharNoCanvas(BufferedImage imagem, int versaoAtual) {
+        SwingUtilities.invokeLater(() -> {
+            if (versaoAtual != versaoExecucao) return;
+            Graphics2D g = canvas.createGraphics();
+            g.drawImage(imagem, 0, 0, null);
+            g.dispose();
+            repaint();
+        });
+    }
+
+    //sobrescreve o método de pintura para desenhar o canvas atualizado
     @Override
-    protected void paintComponent(Graphics g) { // Sobrescreve o método de pintura para desenhar o canvas atualizado
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(canvas, 0, 0, null);
     }
 
     @Override
-    public Dimension getPreferredSize() { // Define o tamanho preferido do painel para acomodar a imagem
+    public Dimension getPreferredSize() {
         return new Dimension(LARGURA, ALTURA);
     }
 
-    public void limpar() { // Método para limpar o canvas e resetar a imagem para o estado original
+    //método para limpar o canvas e resetar a imagem para o estado original
+    public void limpar() {
+        versaoExecucao++;
+        preenchendo = false;
         canvas = copiarImagem(imagemOriginal);
         contadorFloodFill = 0;
         repaint();
     }
 
-    public static void mostrarEscolha() { // Método para mostrar a janela de escolha entre fila e pilha antes de abrir o grid
+    //método para mostrar a janela de escolha entre fila e pilha antes de abrir o grid
+    public static void mostrarEscolha() {
         JDialog dialog = new JDialog();
         dialog.setTitle("Flood Fill");
         dialog.setModal(true);
@@ -147,7 +200,8 @@ public class PaintApp extends JPanel {
         dialog.setVisible(true);
     }
 
-    public static void abrirGrid(boolean usarFila) { // Método para abrir a janela principal do grid com base na escolha do usuário (fila ou pilha)
+    //método para abrir a janela principal do grid com base na escolha do usuário (fila ou pilha)
+    public static void abrirGrid(boolean usarFila) {
         JFrame frame = new JFrame("Flood Fill - " + (usarFila ? "Fila" : "Pilha"));
         PaintApp app = new PaintApp(usarFila);
 
