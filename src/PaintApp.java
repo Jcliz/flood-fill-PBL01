@@ -8,11 +8,11 @@ import java.io.File;
 public class PaintApp extends JPanel {
 
     private BufferedImage canvas;
-    private BufferedImage imagemOriginal;
-    private boolean usarFila;
+    private final BufferedImage imagemOriginal;
+    private final boolean usarFila;
     private int contadorFloodFill = 0;
-    private volatile boolean preenchendo = false;
-    private volatile int versaoExecucao = 0;
+    private boolean preenchendo = false;
+    private int versaoExecucao = 0;
 
     private static final String IMAGEM_BASE_PNG = "imagem-base.png";
 
@@ -73,8 +73,6 @@ public class PaintApp extends JPanel {
                     ff.salvarFrames(pastaFrames);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                } finally {
-                    temp.delete();
                 }
             });
 
@@ -209,6 +207,6 @@ public class PaintApp extends JPanel {
     }
 
     public static void main(String[] args) { 
-        SwingUtilities.invokeLater(() -> mostrarEscolha());
+        SwingUtilities.invokeLater(PaintApp::mostrarEscolha);
     }
 }
