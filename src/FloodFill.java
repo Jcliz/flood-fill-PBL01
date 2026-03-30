@@ -10,6 +10,7 @@ public class FloodFill {
     private static final int NEW_COLOR_G = 45;
     private static final int NEW_COLOR_B = 167;
     private static final Color NEW_COLOR = new Color(NEW_COLOR_R, NEW_COLOR_G, NEW_COLOR_B);
+    private static final int COLOR_TOLERANCE = 15;
 
     private final BufferedImage image;
     private final ArrayList<BufferedImage> frames;
@@ -40,7 +41,17 @@ public class FloodFill {
             int y = atual[1];
 
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-            if (image.getRGB(x, y) != corFundo) continue;
+                int corAtual = image.getRGB(x, y);
+                int rFundo = (corFundo >> 16) & 0xFF;
+                int gFundo = (corFundo >> 8) & 0xFF;
+                int bFundo = corFundo & 0xFF;
+                int rAtual = (corAtual >> 16) & 0xFF;
+                int gAtual = (corAtual >> 8) & 0xFF;
+                int bAtual = corAtual & 0xFF;
+
+                if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
+                    || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
+                    || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
 
             image.setRGB(x, y, NEW_COLOR.getRGB());
             controleMagenta++;
@@ -80,7 +91,17 @@ public class FloodFill {
             int y = atual[1];
 
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-            if (image.getRGB(x, y) != corFundo) continue;
+                int corAtual = image.getRGB(x, y);
+                int rFundo = (corFundo >> 16) & 0xFF;
+                int gFundo = (corFundo >> 8) & 0xFF;
+                int bFundo = corFundo & 0xFF;
+                int rAtual = (corAtual >> 16) & 0xFF;
+                int gAtual = (corAtual >> 8) & 0xFF;
+                int bAtual = corAtual & 0xFF;
+
+                if (Math.abs(rAtual - rFundo) > COLOR_TOLERANCE
+                    || Math.abs(gAtual - gFundo) > COLOR_TOLERANCE
+                    || Math.abs(bAtual - bFundo) > COLOR_TOLERANCE) continue;
 
             image.setRGB(x, y, NEW_COLOR.getRGB());
             controleMagenta++;

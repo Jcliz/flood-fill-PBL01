@@ -14,10 +14,6 @@ public class PaintApp extends JPanel {
     private volatile boolean preenchendo = false;
     private volatile int versaoExecucao = 0;
 
-    private static final int LARGURA = 600;
-    private static final int ALTURA = 600;
-    private static final int CELULAS = 10;
-    private static final int TAMANHO_CELULA = LARGURA / CELULAS;
     private static final String IMAGEM_BASE_PNG = "imagem-base.png";
 
     //construtor que recebe a escolha do usuário sobre qual estrutura de dados usar (fila ou pilha)
@@ -43,16 +39,7 @@ public class PaintApp extends JPanel {
                 throw new IllegalArgumentException("Arquivo PNG inválido: " + IMAGEM_BASE_PNG);
             }
 
-            if (imagemPng.getWidth() == LARGURA && imagemPng.getHeight() == ALTURA) {
-                return copiarImagem(imagemPng);
-            }
-
-            BufferedImage ajustada = new BufferedImage(LARGURA, ALTURA, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = ajustada.createGraphics();
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g.drawImage(imagemPng, 0, 0, LARGURA, ALTURA, null);
-            g.dispose();
-            return ajustada;
+            return copiarImagem(imagemPng);
         } catch (Exception ex) {
             throw new RuntimeException("Nao foi possivel carregar a imagem base PNG na raiz: " + IMAGEM_BASE_PNG, ex);
         }
@@ -146,7 +133,7 @@ public class PaintApp extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(LARGURA, ALTURA);
+        return new Dimension(canvas.getWidth(), canvas.getHeight());
     }
 
     //método para limpar o canvas e resetar a imagem para o estado original
