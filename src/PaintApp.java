@@ -16,7 +16,6 @@ public class PaintApp extends JPanel {
 
     private static final String IMAGEM_BASE_PNG = "imagem-base.png";
 
-    //construtor que recebe a escolha do usuário sobre qual estrutura de dados usar (fila ou pilha)
     public PaintApp(boolean usarFila) {
         this.usarFila = usarFila;
         imagemOriginal = criarGrid();
@@ -30,7 +29,6 @@ public class PaintApp extends JPanel {
         });
     }
 
-    //cria a imagem de fundo com formas geométricas
     private BufferedImage criarGrid() {
         try {
             BufferedImage imagemPng = ImageIO.read(new File(IMAGEM_BASE_PNG));
@@ -45,7 +43,6 @@ public class PaintApp extends JPanel {
         }
     }
 
-    //cria uma cópia da imagem original para ser usada como canvas de desenho
     private BufferedImage copiarImagem(BufferedImage original) {
         BufferedImage copia = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = copia.createGraphics();
@@ -54,7 +51,6 @@ public class PaintApp extends JPanel {
         return copia;
     }
 
-    //método que executa o algoritmo de preenchimento quando o usuário clica em uma célula
     private void executarFloodFill(int x, int y) {
         if (preenchendo) return;
         preenchendo = true;
@@ -122,7 +118,6 @@ public class PaintApp extends JPanel {
         });
     }
 
-    //sobrescreve o método de pintura para desenhar o canvas atualizado
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -134,7 +129,6 @@ public class PaintApp extends JPanel {
         return new Dimension(canvas.getWidth(), canvas.getHeight());
     }
 
-    //método para limpar o canvas e resetar a imagem para o estado original
     public void limpar() {
         versaoExecucao++;
         preenchendo = false;
@@ -143,7 +137,6 @@ public class PaintApp extends JPanel {
         repaint();
     }
 
-    //método para mostrar a janela de escolha entre fila e pilha antes de abrir o grid
     public static void mostrarEscolha() {
         JDialog dialog = new JDialog();
         dialog.setTitle("Flood Fill");
@@ -185,7 +178,6 @@ public class PaintApp extends JPanel {
         dialog.setVisible(true);
     }
 
-    //método para abrir a janela principal do grid com base na escolha do usuário (fila ou pilha)
     public static void abrirGrid(boolean usarFila) {
         JFrame frame = new JFrame("Flood Fill - " + (usarFila ? "Fila" : "Pilha"));
         PaintApp app = new PaintApp(usarFila);

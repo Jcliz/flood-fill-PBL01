@@ -15,7 +15,6 @@ public class FloodFill {
     private final BufferedImage image;
     private final ArrayList<BufferedImage> frames;
 
-    //salva um frame a cada x pixels preenchidos
     private static final int FRAME_INTERVAL = 25;
 
     public FloodFill(String inputPath) throws IOException {
@@ -23,7 +22,6 @@ public class FloodFill {
         this.frames = new ArrayList<>();
     }
 
-    //implementação do algoritmo de preenchimento usando pilha
     public void fillComPilha(int startX, int startY) {
         int corFundo = image.getRGB(startX, startY);
 
@@ -73,7 +71,6 @@ public class FloodFill {
         }
     }
 
-    //implementação do algoritmo de preenchimento usando fila
     public void fillComFila(int startX, int startY) {
         int corFundo = image.getRGB(startX, startY);
 
@@ -123,7 +120,6 @@ public class FloodFill {
         }
     }
 
-    //salva os frames gerados durante o preenchimento
     public void salvarFrames(String pastaFrames) throws IOException {
         File pasta = new File(pastaFrames);
         if (!pasta.exists()) pasta.mkdirs();
@@ -135,15 +131,14 @@ public class FloodFill {
         System.out.println("Total de frames salvos: " + frames.size());
     }
 
-    public ArrayList<BufferedImage> getFrames() { // Retorna a lista de frames gerados durante o preenchimento
+    public ArrayList<BufferedImage> getFrames() { 
         return frames;
     }
 
-    public BufferedImage getImagem() { // Retorna a imagem final após o preenchimento
+    public BufferedImage getImagem() {
         return image;
     }
 
-    //método para criar uma cópia da imagem
     private BufferedImage copiarImagem(BufferedImage original) {
         BufferedImage copia = new BufferedImage(
                 original.getWidth(),
